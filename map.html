@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; URL='http://localhost:8000/map.html'"/>
+    <title>Redirecting...</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.css" />
+    <style>
+        body {
+            background-color: lightblue;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 150px;
+        }
+
+        .menu {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+            .menu a {
+                text-decoration: none;
+                color: #333;
+                font-weight: bold;
+                font-size: 16px;
+                margin: 0 10px;
+            }
+
+                .menu a:hover {
+                    color: #555;
+                }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="logo.jpg" alt="Antenna Scan Application Logo" class="logo">
+    </div>
+
+    <div id="map"></div>
+
+    <div class="menu">
+        <a href="welcome.html">Home</a>
+        <a href="map.html">Map</a>
+        <a href="rating_opinion.html">Rating and Opinion</a>
+        <a href="register.html">Register</a>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.js"></script>
+    <script>
+        var map = L.map('map').setView([31.7683, 35.2137], 10);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © OpenStreetMap contributors',
+            maxZoom: 18,
+        }).addTo(map);
+
+        // Add search box by location
+        var geocoder = L.Control.geocoder({
+            collapsed: false,
+            placeholder: 'Search by location...',
+            geocoder: L.Control.Geocoder.nominatim()
+        }).addTo(map);
+
+        var cellcomLayer = L.layerGroup();
+        var pelephoneLayer = L.layerGroup();
+        var phiLayer = L.layerGroup();
+        var MaximumResultLayerLightBlue = L.layerGroup();
+        var MaximumResultLayerBlue = L.layerGroup();
+        var MaximumResultLayerDarkBlue = L.layerGroup();
+
+        // Define the special marker icon
+        var specialMarkerIcon = L.icon({
+            iconUrl: 'special_marker.png',
+            iconSize: [32, 32], // Adjust as needed
+            iconAnchor: [16, 32], // Adjust as needed
+            popupAnchor: [0, -32] // Adjust as needed
+        });
+
+        fetch('DATA_converted.json')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    var color;
+                    switch (item.חברה) {
+                        case 'פלאפון':
+                            color = 'blue';
+                            pelephoneLayer.addLayer(L.circleMarker([item.latitude, item.longitude], {
+                                radius: 8,
+                                fillColor: color,
+                                color: 'white',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).bindPopup(`<b>Company: פלאפון</b><br>Maximum Result in % in relation to the health threshold: ${item["תוצאה מירבית ב% ביחס לסף הבריאות"]}<br>Site Address: ${item["כתובת האתר"]}`));
+                            break;
+                        case 'סלקום':
+                            color = 'purple';
+                            cellcomLayer.addLayer(L.circleMarker([item.latitude, item.longitude], {
+                                radius: 8,
+                                fillColor: color,
+                                color: 'white',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).bindPopup(`<b>Company: סלקום</b><br>Maximum Result in % in relation to the health threshold: ${item["תוצאה מירבית ב% ביחס לסף הבריאות"]}<br>Site Address: ${item["כתובת האתר"]}`));
+                            break;
+                        case 'PHI (משרת את הוט ופרטנר)':
+                            color = 'red';
+                            phiLayer.addLayer(L.circleMarker([item.latitude, item.longitude], {
+                                radius: 8,
+                                fillColor: color,
+                                color: 'white',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).bindPopup(`<b>Company: PHI (משרת את הוט ופרטנר)</b><br>Maximum Result in % in relation to the health threshold: ${item["תוצאה מירבית ב% ביחס לסף הבריאות"]}<br>Site Address: ${item["כתובת האתר"]}`));
+                            break;
+                        default:
+                        // Do nothing
+                    }
+
+                    // Adding markers based on MaximumResult(%)
+                    var MaximumResultPercentage = parseFloat(item["תוצאה מירבית ב% ביחס לסף הבריאות"]);
+                    if (!isNaN(MaximumResultPercentage)) {
+                        var MaximumResultText = "(%) maximum result in relation to the health threshold";
+                        if (MaximumResultPercentage < 5) {
+                            color = 'lightblue';
+                            MaximumResultLayerLightBlue.addLayer(L.circleMarker([item.latitude, item.longitude], {
+                                radius: 8,
+                                fillColor: color,
+                                color: 'white',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).bindPopup(`<b>Company: ${item.חברה}</b><br>${MaximumResultText}: ${MaximumResultPercentage}%<br>Site Address: ${item["כתובת האתר"]}`));
+                        } else if (MaximumResultPercentage >= 5 && MaximumResultPercentage < 10) {
+                            color = 'blue';
+                            MaximumResultLayerBlue.addLayer(L.circleMarker([item.latitude, item.longitude], {
+                                radius: 8,
+                                fillColor: color,
+                                color: 'white',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).bindPopup(`<b>Company: ${item.חברה}</b><br>${MaximumResultText}: ${MaximumResultPercentage}%<br>Site Address: ${item["כתובת האתר"]}`));
+                        } else {
+                            color = 'darkblue';
+                            MaximumResultLayerDarkBlue.addLayer(L.circleMarker([item.latitude, item.longitude], {
+                                radius: 8,
+                                fillColor: color,
+                                color: 'white',
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            }).bindPopup(`<b>Company: ${item.חברה}</b><br>${MaximumResultText}: ${MaximumResultPercentage}%<br>Site Address: ${item["כתובת האתר"]}`));
+                        }
+                    }
+
+                });
+
+                cellcomLayer.addTo(map);
+                pelephoneLayer.addTo(map);
+                phiLayer.addTo(map);
+                MaximumResultLayerLightBlue.addTo(map);
+                MaximumResultLayerBlue.addTo(map);
+                MaximumResultLayerDarkBlue.addTo(map);
+            })
+            .catch(error => console.error('Error loading the JSON file:', error));
+
+        var baseLayers = {
+            "Map": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data © OpenStreetMap contributors',
+                maxZoom: 18,
+            })
+        };
+
+        var overlays = {
+            "Cellcom": cellcomLayer,
+            "Pelephone": pelephoneLayer,
+            "PHI": phiLayer,
+            "Maximum Result in % in relation to the health threshold (0-5%)": MaximumResultLayerLightBlue,
+            "Maximum Result in % in relation to the health threshold (5-10%)": MaximumResultLayerBlue,
+            "Maximum Result in % in relation to the health threshold (10% and above)": MaximumResultLayerDarkBlue,
+            "All The Companies": L.layerGroup([cellcomLayer, pelephoneLayer, phiLayer])
+        };
+
+        L.control.layers(baseLayers, overlays).addTo(map);
+
+    </script>
+
+</body>
+</html>
