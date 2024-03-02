@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rating and Opinion</title>
+    <style>
+        body {
+            background-color: lightblue;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        .slogan {
+            font-style: italic;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        form {
+            text-align: left;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        select,
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            input[type="submit"]:hover {
+                background-color: #45a049;
+            }
+
+        #thankYouMessage {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        nav {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+            nav ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+                nav ul li {
+                    display: inline;
+                    margin-right: 10px;
+                }
+
+                    nav ul li a {
+                        text-decoration: none;
+                        color: #333;
+                        font-weight: bold;
+                        font-size: 16px;
+                        transition: color 0.3s;
+                    }
+
+                        nav ul li a:hover {
+                            color: #555;
+                        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo.jpg" alt="Antenna Scan Application Logo" class="logo">
+        <h2>Rating and Opinion</h2>
+        <p class="slogan">
+            Now you have the option to give a review about the reception in your area,
+            So that other users can also upgrade their cellular experience
+        </p>
+        <form id="feedbackForm">
+            <label for="company">Select Mobile Company:</label>
+            <select id="company" name="company">
+                <option value="cellcom">Cellcom</option>
+                <option value="pelephone">Pelephone</option>
+                <option value="phi">PHI (Serving Hot and Partner)</option>
+            </select>
+            <label for="opinion">Your Opinion:</label>
+            <textarea id="opinion" name="opinion" rows="4" cols="50"></textarea>
+            <label for="rating">Rating:</label>
+            <input type="range" id="rating" name="rating" min="1" max="5">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location">
+            <input type="submit" value="Submit">
+        </form>
+        <div id="thankYouMessage">
+            <p>Thank you for your feedback!</p>
+        </div>
+    </div>
+
+    <nav>
+        <ul>
+            <li><a href="welcome.html">Home</a></li>
+            <li><a href="map.html">Map</a></li>
+            <li><a href="rating_opinion.html">Rating and Opinion</a></li>
+            <li><a href="register.html">Register</a></li>
+        </ul>
+    </nav>
+
+    <script>
+        document.getElementById('feedbackForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission
+            // Here you can handle the form submission, e.g., send the data to a server
+            // For now, let's just display the "Thank you" message
+            document.getElementById('feedbackForm').style.display = 'none'; // Hide the form
+            document.getElementById('thankYouMessage').style.display = 'block'; // Show the thank you message
+        });
+    </script>
+</body>
+</html>

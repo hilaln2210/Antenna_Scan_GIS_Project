@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .login-container {
+            background-color: lightblue;
+            background-image: url('background.jpg'); /* כיתוב רקע */
+            background-size: cover;
+            background-position: center;
+            height: 100vh; /* מתאים את גובה העמוד לגובה החלון */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 300px; /* הקטן רוחב */
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8); /* שקיפות רקע לתיבת ההתחברות */
+            padding: 20px;
+            border-radius: 10px; /* ריסוס הקטן */
+        }
+
+        .logo {
+            max-width: 150px; /* הקטן רוחב הלוגו */
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 20px); /* קטן את הרוחב כך שישאר מקום לגבולות */
+            padding: 8px; /* הקטן את המרווח בתוך התיבות */
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: calc(100% - 20px); /* קטן את הרוחב כך שישאר מקום לגבולות */
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px; /* הקטן את הרדיוס של הפינות */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            input[type="submit"]:hover {
+                background-color: #45a049;
+            }
+
+        /* עיצוב התפריט */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0 0 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+            a:hover {
+                color: #555;
+            }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="container">
+            <img src="logo.jpg" alt="Antenna Scan Application Logo" class="logo">
+            <h2>Login</h2>
+            <form action="map.html" method="post">
+                <label for="username">Username:</label><br>
+                <input type="text" id="username" name="username"><br>
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password"><br><br>
+                <input type="submit" value="Login">
+            </form>
+
+            <!-- תפריט -->
+            <ul>
+                <li><a href="welcome.html">Home</a></li>
+                <li><a href="map.html">Map</a></li>
+                <li><a href="rating_opinion.html">Rating and Opinion</a></li>
+                <li><a href="register.html">Register</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
