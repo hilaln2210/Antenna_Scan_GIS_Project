@@ -3,210 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0; URL='http://localhost:8000/map.html'"/>
-    <title>Redirecting...</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.css" />
+    <title>Antenna Scan – Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css"/>
     <style>
-        body {
-            background-color: lightblue;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+
+        /* Top bar */
+        #topbar {
+            display: flex; align-items: center; gap: 12px;
+            background: #1a73e8; color: white; padding: 8px 16px;
+            flex-shrink: 0;
         }
-
-        #map {
-            height: 600px;
-            width: 100%;
+        #topbar img { height: 36px; border-radius: 4px; }
+        #topbar h1 { font-size: 16px; flex: 1; }
+        #topbar nav a {
+            color: white; text-decoration: none; margin-left: 16px;
+            font-size: 14px; opacity: 0.9;
         }
+        #topbar nav a:hover { opacity: 1; text-decoration: underline; }
 
-        .container {
-            width: 100%;
-            max-width: 400px;
-            margin: 50px auto;
-            text-align: center;
+        /* Filters bar */
+        #filterbar {
+            display: flex; align-items: center; gap: 10px;
+            background: #f1f3f4; border-bottom: 1px solid #ddd;
+            padding: 8px 16px; flex-shrink: 0; flex-wrap: wrap;
         }
-
-        .logo {
-            max-width: 150px;
+        #filterbar label { font-size: 13px; font-weight: bold; color: #555; }
+        #filterbar select, #filterbar input {
+            padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 13px; background: white;
         }
-
-        .menu {
-            text-align: center;
-            margin-top: 20px;
+        #filterbar select { min-width: 140px; }
+        #city-search { min-width: 180px; }
+        #reset-btn {
+            padding: 5px 12px; background: #e53935; color: white;
+            border: none; border-radius: 4px; cursor: pointer; font-size: 13px;
         }
+        #reset-btn:hover { background: #c62828; }
 
-            .menu a {
-                text-decoration: none;
-                color: #333;
-                font-weight: bold;
-                font-size: 16px;
-                margin: 0 10px;
-            }
+        /* Main layout */
+        #main { display: flex; flex: 1; overflow: hidden; }
 
-                .menu a:hover {
-                    color: #555;
-                }
+        /* Stats sidebar */
+        #sidebar {
+            width: 260px; background: white; border-right: 1px solid #ddd;
+            overflow-y: auto; padding: 12px; flex-shrink: 0;
+        }
+        #sidebar h3 { font-size: 13px; color: #555; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 8px; margin-top: 12px; }
+        #sidebar h3:first-child { margin-top: 0; }
+        .stat-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 5px 8px; border-radius: 4px; margin-bottom: 3px;
+            font-size: 13px;
+        }
+        .stat-row:hover { background: #f5f5f5; cursor: pointer; }
+        .stat-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-right: 6px; }
+        .stat-label { flex: 1; }
+        .stat-count { font-weight: bold; color: #333; }
+        .rad-bar-wrap { background: #eee; border-radius: 3px; height: 6px; flex: 1; margin: 0 8px; }
+        .rad-bar { height: 6px; border-radius: 3px; background: #1a73e8; }
+
+        /* Map */
+        #map { flex: 1; }
+
+        /* Popup */
+        .ant-popup { min-width: 220px; font-size: 13px; line-height: 1.6; }
+        .ant-popup b { color: #1a73e8; }
+        .ant-popup .rad-high { color: #c62828; font-weight: bold; }
+        .ant-popup .rad-med  { color: #e65100; font-weight: bold; }
+        .ant-popup .rad-low  { color: #2e7d32; font-weight: bold; }
+        .ant-popup a { color: #1a73e8; font-size: 12px; }
+
+        /* Loading overlay */
+        #loading {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; z-index: 9999; font-size: 15px; color: #333;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #ddd;
+            border-top-color: #1a73e8; border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <img src="logo.jpg" alt="Antenna Scan Application Logo" class="logo">
-    </div>
+<div id="loading">
+    <div class="spinner"></div>
+    Loading 8,076 antennas…
+</div>
 
+<div id="topbar">
+    <img src="logo.jpg" alt="logo">
+    <h1>Antenna Scan – Israel Cellular Antenna Map</h1>
+    <nav>
+        <a href="Home.html">Home</a>
+        <a href="login.html">Login</a>
+        <a href="rating_opinion.html">Rating</a>
+        <a href="Register.html">Register</a>
+    </nav>
+</div>
+
+<div id="filterbar">
+    <label>Company:</label>
+    <select id="filter-company">
+        <option value="all">All Companies</option>
+        <option value="פלאפון">Pelephone</option>
+        <option value="סלקום">Cellcom</option>
+        <option value="PHI (משרת את הוט ופרטנר)">PHI (Hot & Partner)</option>
+    </select>
+
+    <label>Radiation:</label>
+    <select id="filter-rad">
+        <option value="all">All Levels</option>
+        <option value="low">Low (0–5%)</option>
+        <option value="mid">Medium (5–10%)</option>
+        <option value="high">High (10%+)</option>
+    </select>
+
+    <label>City:</label>
+    <input type="text" id="city-search" placeholder="Type city name…" list="city-list">
+    <datalist id="city-list"></datalist>
+
+    <button id="reset-btn">Reset Filters</button>
+    <span id="count-label" style="font-size:13px;color:#555;margin-left:auto;"></span>
+</div>
+
+<div id="main">
+    <div id="sidebar">
+        <h3>By Company</h3>
+        <div id="stats-company"></div>
+        <h3>By Radiation Level</h3>
+        <div id="stats-rad"></div>
+        <h3>Top 10 Cities</h3>
+        <div id="stats-city"></div>
+    </div>
     <div id="map"></div>
+</div>
 
-    <div class="menu">
-        <a href="welcome.html">Home</a>
-        <a href="map.html">Map</a>
-        <a href="rating_opinion.html">Rating and Opinion</a>
-        <a href="register.html">Register</a>
-    </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
+<script>
+// ── Map init ──────────────────────────────────────────────────────────────────
+const map = L.map('map').setView([31.7683, 35.2137], 8);
 
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.js"></script>
-    <script>
-        var map = L.map('map').setView([31.7683, 35.2137], 10);
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map © OpenStreetMap contributors', maxZoom: 19
+});
+const satelliteLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: 'Tiles © Esri', maxZoom: 19 }
+);
+osmLayer.addTo(map);
+L.control.layers({ 'Street Map': osmLayer, 'Satellite': satelliteLayer }).addTo(map);
+L.Control.geocoder({ collapsed: false, placeholder: 'Search location…' }).addTo(map);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data © OpenStreetMap contributors',
-            maxZoom: 18,
-        }).addTo(map);
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const COMPANY_COLORS = {
+    'פלאפון': '#1565c0',
+    'סלקום': '#6a1b9a',
+    'PHI (משרת את הוט ופרטנר)': '#c62828',
+};
+function companyColor(c) { return COMPANY_COLORS[c] || '#555'; }
 
-        // Add search box by location
-        var geocoder = L.Control.geocoder({
-            collapsed: false,
-            placeholder: 'Search by location...',
-            geocoder: L.Control.Geocoder.nominatim()
-        }).addTo(map);
+function radColor(pct) {
+    if (pct < 5)  return '#43a047';   // green
+    if (pct < 10) return '#fb8c00';   // orange
+    return '#e53935';                  // red
+}
+function radClass(pct) {
+    if (pct < 5)  return 'rad-low';
+    if (pct < 10) return 'rad-med';
+    return 'rad-high';
+}
 
-        var cellcomLayer = L.layerGroup();
-        var pelephoneLayer = L.layerGroup();
-        var phiLayer = L.layerGroup();
-        var MaximumResultLayerLightBlue = L.layerGroup();
-        var MaximumResultLayerBlue = L.layerGroup();
-        var MaximumResultLayerDarkBlue = L.layerGroup();
+// Convert Excel serial date → readable string
+function excelDate(serial) {
+    if (!serial || isNaN(serial)) return '—';
+    const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
+    return d.toLocaleDateString('he-IL');
+}
 
-        // Define the special marker icon
-        var specialMarkerIcon = L.icon({
-            iconUrl: 'special_marker.png',
-            iconSize: [32, 32], // Adjust as needed
-            iconAnchor: [16, 32], // Adjust as needed
-            popupAnchor: [0, -32] // Adjust as needed
+function makePopup(item) {
+    const pct = parseFloat(item["תוצאה מירבית ב% ביחס לסף הבריאות"]);
+    const radStr = isNaN(pct)
+        ? '—'
+        : `<span class="${radClass(pct)}">${pct.toFixed(2)}%</span>`;
+    const docs = [
+        item["קובץ הקמה"] ? `<a href="${item["קובץ הקמה"]}" target="_blank">📄 Setup permit</a>` : '',
+        item["קובץ הפעלה"] ? `<a href="${item["קובץ הפעלה"]}" target="_blank">📄 Operation permit</a>` : ''
+    ].filter(Boolean).join('  ');
+
+    return `<div class="ant-popup">
+        <b>${item.חברה}</b><br>
+        📍 ${item["כתובת האתר"]}, ${item.עיר}<br>
+        🏢 Site #${item["מס' אתר"]} · ${item["סוג אתר"]}<br>
+        📡 Technology: ${item["טכנולוגיית שידור"] || '—'}<br>
+        ☢️ Radiation: ${radStr}<br>
+        📍 Max point: ${item["תאור נקודה בה התקבלה תוצאה מירבית"] || '—'}<br>
+        🛡️ Permit: ${item["היתר קרינה"] || '—'}<br>
+        📅 Last check: ${excelDate(item["בדיקה תקופתית אחרונה"])}<br>
+        ${docs ? '<div style="margin-top:4px">' + docs + '</div>' : ''}
+    </div>`;
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let allData = [];
+let clusterGroup = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 50 });
+map.addLayer(clusterGroup);
+
+// ── Render markers ────────────────────────────────────────────────────────────
+function renderMarkers(data) {
+    clusterGroup.clearLayers();
+    data.forEach(item => {
+        const lat = item.latitude, lng = item.longitude;
+        if (!lat || !lng) return;
+        const pct = parseFloat(item["תוצאה מירבית ב% ביחס לסף הבריאות"]);
+        const color = isNaN(pct) ? companyColor(item.חברה) : radColor(pct);
+        const marker = L.circleMarker([lat, lng], {
+            radius: 7, fillColor: color, color: 'white',
+            weight: 1.5, opacity: 1, fillOpacity: 0.85
+        });
+        marker.bindPopup(makePopup(item), { maxWidth: 300 });
+        clusterGroup.addLayer(marker);
+    });
+    document.getElementById('count-label').textContent = `Showing ${data.length.toLocaleString()} antennas`;
+}
+
+// ── Stats sidebar ─────────────────────────────────────────────────────────────
+function buildStats(data) {
+    // By company
+    const byCompany = {};
+    data.forEach(d => { byCompany[d.חברה] = (byCompany[d.חברה] || 0) + 1; });
+    document.getElementById('stats-company').innerHTML =
+        Object.entries(byCompany).sort((a,b) => b[1]-a[1]).map(([name, cnt]) =>
+            `<div class="stat-row" onclick="filterByCompany('${name.replace(/'/g,"\\'")}')">
+                <span class="stat-dot" style="background:${companyColor(name)}"></span>
+                <span class="stat-label">${name}</span>
+                <span class="stat-count">${cnt.toLocaleString()}</span>
+            </div>`
+        ).join('');
+
+    // By radiation
+    let low=0, mid=0, high=0, nodata=0;
+    data.forEach(d => {
+        const p = parseFloat(d["תוצאה מירבית ב% ביחס לסף הבריאות"]);
+        if (isNaN(p)) nodata++;
+        else if (p < 5) low++;
+        else if (p < 10) mid++;
+        else high++;
+    });
+    const total = data.length || 1;
+    const radRows = [
+        { label: 'Low (0–5%)',   val: low,    color: '#43a047', filter: 'low' },
+        { label: 'Medium (5–10%)', val: mid,  color: '#fb8c00', filter: 'mid' },
+        { label: 'High (10%+)',  val: high,   color: '#e53935', filter: 'high' },
+        { label: 'No data',      val: nodata, color: '#aaa',    filter: null  },
+    ];
+    document.getElementById('stats-rad').innerHTML = radRows.map(r =>
+        `<div class="stat-row" ${r.filter ? `onclick="filterByRad('${r.filter}')"` : ''}>
+            <span class="stat-dot" style="background:${r.color}"></span>
+            <span class="stat-label">${r.label}</span>
+            <div class="rad-bar-wrap"><div class="rad-bar" style="width:${(r.val/total*100).toFixed(1)}%;background:${r.color}"></div></div>
+            <span class="stat-count">${r.val.toLocaleString()}</span>
+        </div>`
+    ).join('');
+
+    // Top cities
+    const byCity = {};
+    data.forEach(d => { byCity[d.עיר] = (byCity[d.עיר] || 0) + 1; });
+    document.getElementById('stats-city').innerHTML =
+        Object.entries(byCity).sort((a,b) => b[1]-a[1]).slice(0, 10).map(([city, cnt]) =>
+            `<div class="stat-row" onclick="searchCity('${city.replace(/'/g,"\\'")}')">
+                <span class="stat-label">📍 ${city}</span>
+                <span class="stat-count">${cnt}</span>
+            </div>`
+        ).join('');
+}
+
+// ── Filter logic ──────────────────────────────────────────────────────────────
+function applyFilters() {
+    const company = document.getElementById('filter-company').value;
+    const rad     = document.getElementById('filter-rad').value;
+    const city    = document.getElementById('city-search').value.trim().toLowerCase();
+
+    const filtered = allData.filter(item => {
+        if (company !== 'all' && item.חברה !== company) return false;
+        if (rad !== 'all') {
+            const p = parseFloat(item["תוצאה מירבית ב% ביחס לסף הבריאות"]);
+            if (rad === 'low'  && !(p < 5))  return false;
+            if (rad === 'mid'  && !(p >= 5 && p < 10)) return false;
+            if (rad === 'high' && !(p >= 10)) return false;
+        }
+        if (city && !item.עיר?.toLowerCase().includes(city)) return false;
+        return true;
+    });
+
+    renderMarkers(filtered);
+    buildStats(filtered);
+}
+
+function filterByCompany(name) {
+    document.getElementById('filter-company').value = name;
+    applyFilters();
+}
+function filterByRad(level) {
+    document.getElementById('filter-rad').value = level;
+    applyFilters();
+}
+function searchCity(city) {
+    document.getElementById('city-search').value = city;
+    applyFilters();
+}
+
+document.getElementById('filter-company').addEventListener('change', applyFilters);
+document.getElementById('filter-rad').addEventListener('change', applyFilters);
+document.getElementById('city-search').addEventListener('input', applyFilters);
+document.getElementById('reset-btn').addEventListener('click', () => {
+    document.getElementById('filter-company').value = 'all';
+    document.getElementById('filter-rad').value = 'all';
+    document.getElementById('city-search').value = '';
+    applyFilters();
+});
+
+// ── Load data ─────────────────────────────────────────────────────────────────
+fetch('DATA_converted.json')
+    .then(r => r.json())
+    .then(data => {
+        allData = data;
+
+        // Build city autocomplete
+        const cities = [...new Set(data.map(d => d.עיר).filter(Boolean))].sort();
+        const dl = document.getElementById('city-list');
+        cities.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            dl.appendChild(opt);
         });
 
-        fetch('DATA_converted.json')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(item => {
-                    var color;
-                    switch (item.חברה) {
-                        case 'פלאפון':
-                            color = 'blue';
-                            pelephoneLayer.addLayer(L.circleMarker([item.latitude, item.longitude], {
-                                radius: 8,
-                                fillColor: color,
-                                color: 'white',
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }).bindPopup(`<b>Company: פלאפון</b><br>Maximum Result in % in relation to the health threshold: ${item["תוצאה מירבית ב% ביחס לסף הבריאות"]}<br>Site Address: ${item["כתובת האתר"]}`));
-                            break;
-                        case 'סלקום':
-                            color = 'purple';
-                            cellcomLayer.addLayer(L.circleMarker([item.latitude, item.longitude], {
-                                radius: 8,
-                                fillColor: color,
-                                color: 'white',
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }).bindPopup(`<b>Company: סלקום</b><br>Maximum Result in % in relation to the health threshold: ${item["תוצאה מירבית ב% ביחס לסף הבריאות"]}<br>Site Address: ${item["כתובת האתר"]}`));
-                            break;
-                        case 'PHI (משרת את הוט ופרטנר)':
-                            color = 'red';
-                            phiLayer.addLayer(L.circleMarker([item.latitude, item.longitude], {
-                                radius: 8,
-                                fillColor: color,
-                                color: 'white',
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }).bindPopup(`<b>Company: PHI (משרת את הוט ופרטנר)</b><br>Maximum Result in % in relation to the health threshold: ${item["תוצאה מירבית ב% ביחס לסף הבריאות"]}<br>Site Address: ${item["כתובת האתר"]}`));
-                            break;
-                        default:
-                        // Do nothing
-                    }
-
-                    // Adding markers based on MaximumResult(%)
-                    var MaximumResultPercentage = parseFloat(item["תוצאה מירבית ב% ביחס לסף הבריאות"]);
-                    if (!isNaN(MaximumResultPercentage)) {
-                        var MaximumResultText = "(%) maximum result in relation to the health threshold";
-                        if (MaximumResultPercentage < 5) {
-                            color = 'lightblue';
-                            MaximumResultLayerLightBlue.addLayer(L.circleMarker([item.latitude, item.longitude], {
-                                radius: 8,
-                                fillColor: color,
-                                color: 'white',
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }).bindPopup(`<b>Company: ${item.חברה}</b><br>${MaximumResultText}: ${MaximumResultPercentage}%<br>Site Address: ${item["כתובת האתר"]}`));
-                        } else if (MaximumResultPercentage >= 5 && MaximumResultPercentage < 10) {
-                            color = 'blue';
-                            MaximumResultLayerBlue.addLayer(L.circleMarker([item.latitude, item.longitude], {
-                                radius: 8,
-                                fillColor: color,
-                                color: 'white',
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }).bindPopup(`<b>Company: ${item.חברה}</b><br>${MaximumResultText}: ${MaximumResultPercentage}%<br>Site Address: ${item["כתובת האתר"]}`));
-                        } else {
-                            color = 'darkblue';
-                            MaximumResultLayerDarkBlue.addLayer(L.circleMarker([item.latitude, item.longitude], {
-                                radius: 8,
-                                fillColor: color,
-                                color: 'white',
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }).bindPopup(`<b>Company: ${item.חברה}</b><br>${MaximumResultText}: ${MaximumResultPercentage}%<br>Site Address: ${item["כתובת האתר"]}`));
-                        }
-                    }
-
-                });
-
-                cellcomLayer.addTo(map);
-                pelephoneLayer.addTo(map);
-                phiLayer.addTo(map);
-                MaximumResultLayerLightBlue.addTo(map);
-                MaximumResultLayerBlue.addTo(map);
-                MaximumResultLayerDarkBlue.addTo(map);
-            })
-            .catch(error => console.error('Error loading the JSON file:', error));
-
-        var baseLayers = {
-            "Map": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data © OpenStreetMap contributors',
-                maxZoom: 18,
-            })
-        };
-
-        var overlays = {
-            "Cellcom": cellcomLayer,
-            "Pelephone": pelephoneLayer,
-            "PHI": phiLayer,
-            "Maximum Result in % in relation to the health threshold (0-5%)": MaximumResultLayerLightBlue,
-            "Maximum Result in % in relation to the health threshold (5-10%)": MaximumResultLayerBlue,
-            "Maximum Result in % in relation to the health threshold (10% and above)": MaximumResultLayerDarkBlue,
-            "All The Companies": L.layerGroup([cellcomLayer, pelephoneLayer, phiLayer])
-        };
-
-        L.control.layers(baseLayers, overlays).addTo(map);
-
-    </script>
-
+        renderMarkers(allData);
+        buildStats(allData);
+        document.getElementById('loading').style.display = 'none';
+    })
+    .catch(err => {
+        document.getElementById('loading').innerHTML =
+            `<span style="color:red">⚠️ Failed to load data: ${err.message}</span>`;
+    });
+</script>
 </body>
 </html>

@@ -3,160 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rating and Opinion</title>
+    <title>Rating and Opinion – Antenna Scan</title>
     <style>
+        * { box-sizing: border-box; }
         body {
-            background-color: lightblue;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(135deg, #b3d9f7 0%, #e0f0ff 100%);
+            font-family: Arial, sans-serif; margin: 0; padding: 20px;
+            min-height: 100vh;
         }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 50px auto;
-            text-align: center;
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            max-width: 200px;
+        .page-wrap { max-width: 640px; margin: 0 auto; }
+        .card {
+            background: white; border-radius: 12px;
+            padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
-
-        h2 {
-            margin-bottom: 10px;
+        .logo { max-width: 140px; display: block; margin: 0 auto 16px; }
+        h2 { text-align: center; margin-bottom: 6px; color: #1a1a2e; }
+        .slogan { text-align: center; font-style: italic; color: #777; margin-bottom: 24px; font-size: 14px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #333; }
+        select, textarea, input[type="text"] {
+            width: 100%; padding: 10px; margin-bottom: 16px;
+            border: 1px solid #ccc; border-radius: 6px; font-size: 15px;
         }
-
-        .slogan {
-            font-style: italic;
-            color: #888;
-            margin-bottom: 20px;
+        select:focus, textarea:focus, input:focus {
+            outline: none; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
         }
-
-        form {
-            text-align: left;
+        /* Star rating */
+        .stars-wrap { display: flex; gap: 8px; margin-bottom: 16px; }
+        .star {
+            font-size: 32px; cursor: pointer; transition: transform 0.1s;
+            color: #ddd; user-select: none;
         }
-
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-            text-align: left;
+        .star.active { color: #f9a825; }
+        .star:hover { transform: scale(1.2); }
+        #rating-label { font-size: 13px; color: #777; margin-left: 8px; }
+        /* Submit */
+        button[type="submit"] {
+            width: 100%; padding: 12px; background: #1a73e8; color: white;
+            border: none; border-radius: 6px; font-size: 16px; cursor: pointer;
+            transition: background 0.2s;
         }
-
-        select,
-        textarea,
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        input[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-            input[type="submit"]:hover {
-                background-color: #45a049;
-            }
-
+        button[type="submit"]:hover { background: #1558b0; }
+        /* Thank you */
         #thankYouMessage {
-            display: none;
-            margin-top: 20px;
-            font-weight: bold;
-            color: #4CAF50;
+            display: none; text-align: center; padding: 20px;
         }
+        #thankYouMessage .check { font-size: 48px; }
+        #thankYouMessage h3 { color: #2e7d32; margin: 8px 0 4px; }
+        #thankYouMessage p { color: #555; font-size: 14px; }
+        #submit-another { margin-top: 12px; background: #43a047; color: white;
+            border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
 
-        nav {
-            text-align: center;
-            margin-top: 20px;
+        /* Past reviews */
+        .reviews-title { font-size: 14px; font-weight: bold; color: #555;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+        .review-item {
+            background: #f8f9fa; border-radius: 8px; padding: 12px;
+            margin-bottom: 10px; border-left: 4px solid #1a73e8;
         }
+        .review-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .review-stars { color: #f9a825; font-size: 14px; }
+        .review-text { font-size: 14px; color: #333; margin-top: 4px; }
+        .no-reviews { color: #aaa; font-size: 14px; text-align: center; padding: 12px; }
 
-            nav ul {
-                list-style-type: none;
-                padding: 0;
-            }
-
-                nav ul li {
-                    display: inline;
-                    margin-right: 10px;
-                }
-
-                    nav ul li a {
-                        text-decoration: none;
-                        color: #333;
-                        font-weight: bold;
-                        font-size: 16px;
-                        transition: color 0.3s;
-                    }
-
-                        nav ul li a:hover {
-                            color: #555;
-                        }
+        /* Nav */
+        nav { text-align: center; margin-top: 16px; }
+        nav a {
+            color: #1a73e8; text-decoration: none; margin: 0 10px;
+            font-size: 14px; font-weight: bold;
+        }
+        nav a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="logo.jpg" alt="Antenna Scan Application Logo" class="logo">
+<div class="page-wrap">
+    <div class="card">
+        <img src="logo.jpg" alt="Antenna Scan Logo" class="logo">
         <h2>Rating and Opinion</h2>
-        <p class="slogan">
-            Now you have the option to give a review about the reception in your area,
-            So that other users can also upgrade their cellular experience
-        </p>
+        <p class="slogan">Share your cellular reception experience so others can make better choices.</p>
+
         <form id="feedbackForm">
-            <label for="company">Select Mobile Company:</label>
+            <label for="company">Mobile Company:</label>
             <select id="company" name="company">
-                <option value="cellcom">Cellcom</option>
-                <option value="pelephone">Pelephone</option>
-                <option value="phi">PHI (Serving Hot and Partner)</option>
+                <option value="Cellcom">Cellcom (סלקום)</option>
+                <option value="Pelephone">Pelephone (פלאפון)</option>
+                <option value="Partner">Partner (פרטנר)</option>
+                <option value="Hot Mobile">Hot Mobile</option>
+                <option value="PHI">PHI (Hot & Partner)</option>
             </select>
+
+            <label for="location">Location / City:</label>
+            <input type="text" id="location" name="location" placeholder="e.g. Tel Aviv, Haifa…">
+
+            <label>Rating:</label>
+            <div class="stars-wrap" id="stars-wrap">
+                <span class="star" data-val="1">★</span>
+                <span class="star" data-val="2">★</span>
+                <span class="star" data-val="3">★</span>
+                <span class="star" data-val="4">★</span>
+                <span class="star" data-val="5">★</span>
+                <span id="rating-label">Click to rate</span>
+            </div>
+            <input type="hidden" id="rating" value="0">
+
             <label for="opinion">Your Opinion:</label>
-            <textarea id="opinion" name="opinion" rows="4" cols="50"></textarea>
-            <label for="rating">Rating:</label>
-            <input type="range" id="rating" name="rating" min="1" max="5">
-            <label for="location">Location:</label>
-            <input type="text" id="location" name="location">
-            <input type="submit" value="Submit">
+            <textarea id="opinion" name="opinion" rows="4" placeholder="Describe the signal quality, coverage issues, speed…"></textarea>
+
+            <button type="submit">Submit Review</button>
         </form>
+
         <div id="thankYouMessage">
-            <p>Thank you for your feedback!</p>
+            <div class="check">✅</div>
+            <h3>Thank you for your feedback!</h3>
+            <p>Your review helps other users improve their cellular experience.</p>
+            <button id="submit-another">Submit Another</button>
         </div>
     </div>
 
-    <nav>
-        <ul>
-            <li><a href="welcome.html">Home</a></li>
-            <li><a href="map.html">Map</a></li>
-            <li><a href="rating_opinion.html">Rating and Opinion</a></li>
-            <li><a href="register.html">Register</a></li>
-        </ul>
-    </nav>
+    <!-- Past reviews -->
+    <div class="card" id="reviews-card">
+        <div class="reviews-title">Recent Community Reviews</div>
+        <div id="reviews-list"></div>
+    </div>
 
-    <script>
-        document.getElementById('feedbackForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent form submission
-            // Here you can handle the form submission, e.g., send the data to a server
-            // For now, let's just display the "Thank you" message
-            document.getElementById('feedbackForm').style.display = 'none'; // Hide the form
-            document.getElementById('thankYouMessage').style.display = 'block'; // Show the thank you message
-        });
-    </script>
+    <nav>
+        <a href="Home.html">Home</a>
+        <a href="map.html">Map</a>
+        <a href="login.html">Login</a>
+        <a href="Register.html">Register</a>
+    </nav>
+</div>
+
+<script>
+// ── Star rating ────────────────────────────────────────────────────────────────
+let selectedRating = 0;
+const stars = document.querySelectorAll('.star');
+const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+stars.forEach(star => {
+    star.addEventListener('mouseenter', () => highlightStars(+star.dataset.val));
+    star.addEventListener('mouseleave', () => highlightStars(selectedRating));
+    star.addEventListener('click', () => {
+        selectedRating = +star.dataset.val;
+        document.getElementById('rating').value = selectedRating;
+        document.getElementById('rating-label').textContent = ratingLabels[selectedRating];
+        highlightStars(selectedRating);
+    });
+});
+
+function highlightStars(val) {
+    stars.forEach(s => s.classList.toggle('active', +s.dataset.val <= val));
+}
+
+// ── LocalStorage reviews ───────────────────────────────────────────────────────
+function loadReviews() {
+    return JSON.parse(localStorage.getItem('antenna_reviews') || '[]');
+}
+function saveReview(review) {
+    const reviews = loadReviews();
+    reviews.unshift(review);
+    localStorage.setItem('antenna_reviews', JSON.stringify(reviews.slice(0, 50)));
+}
+function renderReviews() {
+    const reviews = loadReviews();
+    const el = document.getElementById('reviews-list');
+    if (!reviews.length) {
+        el.innerHTML = '<div class="no-reviews">No reviews yet. Be the first!</div>';
+        return;
+    }
+    el.innerHTML = reviews.slice(0, 10).map(r => `
+        <div class="review-item">
+            <div class="review-meta">
+                <b>${r.company}</b> · ${r.location || 'Unknown location'} ·
+                <span style="color:#aaa">${r.date}</span>
+            </div>
+            <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+            <div class="review-text">${r.opinion || '<em>No comment</em>'}</div>
+        </div>
+    `).join('');
+}
+
+// ── Form submit ────────────────────────────────────────────────────────────────
+document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (selectedRating === 0) {
+        alert('Please select a star rating.');
+        return;
+    }
+    saveReview({
+        company:  document.getElementById('company').value,
+        location: document.getElementById('location').value,
+        rating:   selectedRating,
+        opinion:  document.getElementById('opinion').value,
+        date:     new Date().toLocaleDateString('en-GB')
+    });
+    document.getElementById('feedbackForm').style.display = 'none';
+    document.getElementById('thankYouMessage').style.display = 'block';
+    renderReviews();
+});
+
+document.getElementById('submit-another').addEventListener('click', () => {
+    document.getElementById('feedbackForm').reset();
+    document.getElementById('feedbackForm').style.display = 'block';
+    document.getElementById('thankYouMessage').style.display = 'none';
+    selectedRating = 0;
+    document.getElementById('rating').value = 0;
+    document.getElementById('rating-label').textContent = 'Click to rate';
+    highlightStars(0);
+});
+
+renderReviews();
+</script>
 </body>
 </html>

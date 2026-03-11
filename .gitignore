@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp / logs
+*.log
+*.tmp
+*.bak
+
+# Video (large file)
+*.mkv
+*.mp4
+*.avi
+!screenshots/
