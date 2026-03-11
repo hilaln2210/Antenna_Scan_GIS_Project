@@ -2,12 +2,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-מיפוי אנטנות סלולריות בישראל — פרויקט GIS לאיתור ומיקום אנטנות.
-ריכוז מידע ממקורות שונים (מינהל הקרינה הסביבתית) בממשק ידידותי ואינטראקטיבי.
+GIS mapping of 8,076+ cellular antennas across Israel — radiation data, interactive maps, and filtering by operator.
+
+מיפוי אנטנות סלולריות בישראל — פרויקט GIS לאיתור ומיקום אנטנות עם נתוני קרינה וסינון לפי ספק.
 
 ---
 
-## צילומי מסך
+## Screenshots — צילומי מסך
 
 ### דף בית
 ![דף בית](screenshots/home.png)
@@ -29,7 +30,7 @@
 
 ---
 
-## תכונות
+## Features — תכונות
 
 - **דף בית** — כניסה לאפליקציה
 - **Login / Register** — התחברות והרשמה (כולל דף אישור)
