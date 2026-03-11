@@ -1,5 +1,7 @@
 # Antenna Scan GIS Project
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 מיפוי אנטנות סלולריות בישראל — פרויקט GIS לאיתור ומיקום אנטנות.
 ריכוז מידע ממקורות שונים (מינהל הקרינה הסביבתית) בממשק ידידותי ואינטראקטיבי.
 
